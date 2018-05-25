@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html >
+	<head>
+		<title>Basic Three.js framework</title>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+        <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1"/>
+
+		<script src="../three-js/three.js"></script>
+		<script src="../three-js/Detector.js"></script>
+	</head>
+	<body>
+
+		<script>
+			// Globals (ick)
+            var scene, camera, renderer;
+
+            var samples =
+                [
+                    { x: -10, y: 0 },
+                    { x: -5,  y: 5},
+                    { x: 0,   y: 0 },
+                    { x: 5,   y: -5 },
+                    { x: 10,  y: 0 },
+                    { x: 10,  y: 2 }
+                ];
+
+            var samples2 =
+                [
+                    { x: 7.24000, y: 8 },
+                    { x: 7.88800, y: 6 },
+                    { x: 8.53600, y: 2 },
+                    { x: 8.75200, y: 0 },
+                    { x: 9.18400, y: 2 },
+                    { x: 9.40000, y: 5 }
+                ];
+
+            var samples3 =
+                [
+                    { x: 275659200, y: 1010 },
+                    { x: 275724000, y: 1008 },
+                    { x: 275788800, y: 1006 },
+                    { x: 275853600, y: 1002 },
+                    { x: 275875200, y: 1000 },
+                    { x: 275918400, y: 1002 },
+                    { x: 275940000, y: 1005 }
+                ];
+
+            initializeScene();
+
+            initDemo();
+
+            animateScene();
+
+			/* Initialize the scene. */
+			function initializeScene(){
+                if ( !Detector.webgl ) {
+                    Detector.addGetWebGLMessage();
+                    debugger;
+                }
+
+				renderer = new THREE.WebGLRenderer({antialias: true});
+
+				// Set the background color of the renderer to black, with full opacity
+				renderer.setClearColor(0x000000, 1);
+
+                var canvasWidth  = window.innerWidth;
+                var canvasHeight = window.innerHeight;
+
+				// Set the renderer's size to the content area's size
+				renderer.setSize(canvasWidth, canvasHeight);
+
+                var  container = document.createElement( 'div' );
+                document.body.appendChild( container );
+				container.appendChild(renderer.domElement);
+
+				scene = new THREE.Scene();
+
+				camera = new THREE.PerspectiveCamera(45, canvasWidth / canvasHeight, 1, 100);
+				camera.position.set(0, 0, 25);
+				camera.lookAt(scene.position);
+				scene.add(camera);
+            }
+
+            function initDemo() {
+                // Create a sine-like wave
+                var curve = new THREE.SplineCurve( [
+                    new THREE.Vector2( samples[0].x, samples[0].y ),
+                    new THREE.Vector2( samples[1].x, samples[1].y  ),
+                    new THREE.Vector2( samples[2].x, samples[2].y  ),
+                    new THREE.Vector2( samples[3].x, samples[3].y  ),
+                    new THREE.Vector2( samples[4].x, samples[4].y  ),
+                    new THREE.Vector2( samples[5].x, samples[5].y  )
+                ] );
+
+                addBall( samples[0].x, samples[0].y );
+                addBall( samples[1].x, samples[1].y );
+                addBall( samples[2].x, samples[2].y );
+                addBall( samples[3].x, samples[3].y );
+                addBall( samples[4].x, samples[4].y );
+                addBall( samples[5].x, samples[5].y );
+
+                var points = curve.getPoints( 50 );
+                var geometry = new THREE.BufferGeometry().setFromPoints( points );
+
+                var material = new THREE.LineBasicMaterial( { color : 0xff0000 } );
+                var splineObject = new THREE.Line( geometry, material );
+                scene.add( splineObject);
+
+                var slope = 1 / (samples[samples.length-1].x - samples[0].x);
+                var intcp = samples[0].x;
+
+                console.log("samples[0].x: " + samples[0].x);
+
+                extractPoint( curve, (samples[0].x - intcp) * slope );
+                extractPoint( curve, (samples[1].x - intcp) * slope );
+                extractPoint( curve, (samples[2].x - intcp) * slope );
+                extractPoint( curve, 0.5 ); //(samples[3].x - intcp) * slope );
+                extractPoint( curve, (samples[4].x - intcp) * slope );
+                extractPoint( curve, (samples[5].x - intcp) * slope );
+            }
+
+            function addBall ( x, y ) {
+                var ballGeom = new THREE.SphereGeometry(0.25, 32, 32);
+                var ballMat = new THREE.MeshBasicMaterial({color: 0xff000});
+                var ball = new THREE.Mesh(ballGeom, ballMat);
+                ball.position.set(x, y, 0);
+                scene.add(ball);
+            }
+
+            function extractPoint( curve, u ) {
+			    var pos =  curve.getPoint(u);
+                console.log(" x,y: " + pos.x + ", " + pos.y);
+            }
+
+			/* Animate the scene and call rendering. */
+			function animateScene(){
+
+				requestAnimationFrame(animateScene);
+
+                renderer.render(scene, camera);
+			}
+		</script>
+	</body>
+</html>
