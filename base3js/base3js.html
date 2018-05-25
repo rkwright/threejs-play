@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html >
+	<head>
+		<title>Basic Three.js framework</title>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+        <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1"/>
+
+		<script src="../three-js/three.js"></script>
+		<script src="../three-js/Detector.js"></script>
+	</head>
+	<body>
+
+		<script>
+			// Globals (ick)
+            var scene, camera, renderer;
+
+			initializeScene();
+
+			animateScene();
+
+			/**
+			 * Initialize the scene.
+			 */
+			function initializeScene(){
+                if ( !Detector.webgl ) {
+                    Detector.addGetWebGLMessage();
+                    debugger;
+                }
+
+				renderer = new THREE.WebGLRenderer({antialias: true});
+
+				// Set the background color of the renderer to black, with full opacity
+				renderer.setClearColor(0x000000, 1);
+
+                var canvasWidth  = window.innerWidth;
+                var canvasHeight = window.innerHeight;
+
+				// Set the renderer's size to the content area's size
+				renderer.setSize(canvasWidth, canvasHeight);
+
+                var  container = document.createElement( 'div' );
+                document.body.appendChild( container );
+				container.appendChild(renderer.domElement);
+
+				scene = new THREE.Scene();
+
+				camera = new THREE.PerspectiveCamera(45, canvasWidth / canvasHeight, 1, 100);
+				camera.position.set(0, 0, 15);
+				camera.lookAt(scene.position);
+				scene.add(camera);
+
+                var geometry = new THREE.SphereGeometry( 1, 32, 32 );
+                var material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
+                var sphere = new THREE.Mesh( geometry, material );
+                scene.add( sphere );
+            }
+
+			/* Animate the scene and call rendering. */
+			function animateScene(){
+
+				requestAnimationFrame(animateScene);
+
+                renderer.render(scene, camera);
+			}
+		</script>
+	</body>
+</html>
